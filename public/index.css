@@ -205,3 +205,11 @@ body{
 	text-align: justify;
 	font-size: 11px;
 }
+.pagination_container{
+	width:100%;
+	display: flex;
+	justify-content:center;
+}
+.pagination_container button{
+	margin: 10px;
+}

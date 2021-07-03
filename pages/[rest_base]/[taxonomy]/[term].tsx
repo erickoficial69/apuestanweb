@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from 'react'
 import CatsMenu from '../../../components/cats_menu'
 import Tarjetita_post_1 from '../../../components/post_cards/tarjetita_post_1'
 import { App_context } from '../../../context/wp_context/app_context'
-import { get_posts_by_taxonomy, get_post_type } from '../../../controlers/app_controller'
+import { get_posts_by_taxonomy, get_post_type, get_types } from '../../../controlers/app_controller'
 import { get_taxonomies, get_terms } from '../../../controlers/taxonomies_controles'
 import { Post, WPResp } from '../../../interfaces/app_interfaces'
 
@@ -16,7 +16,6 @@ type Props={
 }
 const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
   const {app,app_dispatch} = useContext(App_context)
-  const [show_cats,setShow_Cats] = useState<boolean>(false)
   const [currentPage,setCurrentPage] = useState<any>({
     page:1,
     total:24,
@@ -25,12 +24,6 @@ const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
   
   const {asPath,isFallback} = useRouter()
   
-  const toggle_element = (e:any)=>{
-    const li:HTMLElement = e.target
-    const ul_items = li.parentElement?.children[1]
-    ul_items?.classList.toggle('view_items')
-   
-  }
 
   if(isFallback) return <section><b>Loading...</b></section>
   
@@ -101,15 +94,8 @@ const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
         <link rel="shortlink" href={process.env.URL_START+asPath} />
         <link rel="canonical" href={process.env.URL_START+asPath} />
       </Head>
-    <aside>
-      <ul className="aside_mobile_toolbar" >
-        <li>Filtrar por categorias</li>
-        <li onClick={()=>setShow_Cats(!show_cats)} ><b>{show_cats?'Close':'Categorias'}</b></li>
-      </ul>
-      <CatsMenu show_cats={show_cats} page_info={page_info} setShow_Cats={setShow_Cats} toggle_element={toggle_element} />
-
-    </aside>
-    <section id="news" >         
+    
+    <section>         
        {
          app.posts.total?(
           <div className="container_posts_1" >
@@ -117,8 +103,7 @@ const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
           </div>
          ):null
        }
-    </section>
-    <section>
+    
       <div className="pagination_container">
           {
             wpresp.total_pages?
@@ -147,21 +132,29 @@ const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
             :null
           }
       </div>
-    </section>     
+    </section> 
+    <aside>
+      <CatsMenu page_info={page_info} />
+    </aside>    
   </>
   
 }
 export const getStaticPaths:GetStaticPaths = async()=>{
-  let params = {taxonomy:'_',term:'_'}
+  let params = {rest_base:'blog',taxonomy:'_',term:'_'}
   const paths =[{params}]
   try{
     const taxonomies = await get_taxonomies()
     const tax_keys = Object.keys(taxonomies)
     const terms = await get_terms(tax_keys)
-    for(let taxonomy of terms){
-      if(taxonomy.terms && taxonomy.terms.length > 0){
-        for(let term of taxonomy.terms){
-          paths.push({params:{taxonomy:taxonomy.rest_base,term:term.slug}})
+    const types = await get_types()
+    const types_array:any = Object.values(types)
+   
+    for(let type of types_array){
+      for(let taxonomy of terms){
+        if(taxonomy.terms && taxonomy.terms.length > 0){
+          for(let term of taxonomy.terms){
+            paths.push({params:{rest_base:type.rest_base,taxonomy:taxonomy.rest_base,term:term.slug}})
+          }
         }
       }
     }
@@ -174,10 +167,10 @@ export const getStaticPaths:GetStaticPaths = async()=>{
 }
 export const getStaticProps:GetStaticProps = async({params}:GetStaticPropsContext)=>{
   
-  const {taxonomy,term}:any = params
+  const {rest_base,taxonomy,term}:any = params
   if(taxonomy!=='_'){
-  const wpresp:WPResp = await get_posts_by_taxonomy({rest_base:'posts',taxonomy,term,per_page:24})
-  let page_info = await get_post_type({type:'post'}) 
+  const wpresp:WPResp = await get_posts_by_taxonomy({rest_base:rest_base,taxonomy,term,per_page:24})
+  let page_info = await get_post_type({type:wpresp.data[0].type}) 
   page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
     if(wpresp.total != '0'){
       return {

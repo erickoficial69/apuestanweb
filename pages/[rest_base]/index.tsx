@@ -15,7 +15,6 @@ type Props={
 }
 const Blog = ({wpresp,page_info}:Props)=>{
   const {app,app_dispatch} = useContext(App_context)
-  const [show_cats,setShow_Cats] = useState<boolean>(false)
   const [currentPage,setCurrentPage] = useState<any>({
     page:1,
     total:24,
@@ -25,12 +24,6 @@ const Blog = ({wpresp,page_info}:Props)=>{
   if(isFallback) return <section><b>Loading...</b></section>
   if(!wpresp || !page_info) return <section><b>No hay datos en este momento</b></section>
 
-  const toggle_element = (e:any)=>{
-    const li:HTMLElement = e.target
-    const ul_items = li.parentElement?.children[1]
-    ul_items?.classList.toggle('view_items')
-   
-  }
   
   const next = async(param?:number)=>{
     if(param){
@@ -127,7 +120,7 @@ const Blog = ({wpresp,page_info}:Props)=>{
       </div>
     </section>
     <aside>
-      <CatsMenu show_cats={show_cats} page_info={page_info} setShow_Cats={setShow_Cats} toggle_element={toggle_element} />  
+      <CatsMenu page_info={page_info} />  
     </aside>
   </>
   
