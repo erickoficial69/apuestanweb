@@ -45,15 +45,15 @@ const The_Post = ({post,page_info}:Props)=>{
         <meta property="og:description" content={post.excerpt?.rendered.replace('<p>','').replace('</p>','')} />
         <meta property="og:locale" content="es_ES" />
         <meta property="og:url" content={process.env.URL_START+asPath} />
-        <meta property="og:image" content={post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:''} />
-        <meta property="og:image:secure_url" content={post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:''} />
+        <meta property="og:image" content={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:''} />
+        <meta property="og:image:secure_url" content={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:''} />
         <meta property="og:image:width" content="320" />
         <meta property="og:image:height" content="240" />
         {/**TWITTER META */}
         <meta name="twitter:title" content={post.title.rendered +" - Diaz web app"} /> 
         <meta name="twitter:description" content={post.excerpt?.rendered.replace('<p>','').replace('</p>','')} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content={post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:''} />
+        <meta name="twitter:image" content={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:''} />
         <meta name="twitter:label1" content="Tiempo de lectura" />
         <meta name="twitter:data1" content="3 minutos" />
         {/**LINK META */}
