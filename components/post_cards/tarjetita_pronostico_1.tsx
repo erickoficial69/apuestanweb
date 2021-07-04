@@ -9,9 +9,9 @@ type Props={
 const Tarjetita_pronostico_1 = ({post}:Props)=>{
     const {app_dispatch} = useContext(App_context)
     return (
-        <Link href={`/${post.slug}`} >
+        <Link href={`/${post.type}/${post.slug}`} >
             <a className="tarjetita_pronostico_1" onClick={()=>{document.location.pathname!=`/${post.slug}`?app_dispatch({type:'loader_app',payload:true}):null}} >
-            <h3 className="title_pronostico" >{post._embedded["wp:term"][0][0]?post._embedded["wp:term"][0][0].name:'apuestanweb'} {post._embedded["wp:term"][0][1]?post._embedded["wp:term"][0][1].name : 'apuestanweb'}</h3>
+            <h3 className="title_pronostico" >{post._embedded && post._embedded["wp:term"][0][0]?post._embedded["wp:term"][0][0].name:'apuestanweb'} {post._embedded["wp:term"][0][1]?post._embedded["wp:term"][0][1].name : 'apuestanweb'}</h3>
               
             <div className="equipos_pronostico" >
                 <div>

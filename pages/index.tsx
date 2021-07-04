@@ -31,12 +31,12 @@ const IndexPage = ({resp,resp_posts}:Props) => {
         }
         if(currentPage.page == 1){
             const wpresp = await get_all_posts({rest_base:'posts',per_page:currentPage.total,page:param})
-            setCurrentPage({...statePosts, posts:wpresp.data})
+            setCurrentPage({...currentPage, posts:wpresp.data})
             return
         }
         if(resp.total_pages && currentPage.page > 1 && currentPage.page <= parseInt(resp.total_pages)){
             const wpresp = await get_all_posts({rest_base:'posts',per_page:currentPage.total,page:param})
-            setCurrentPage({...statePosts, posts:wpresp.data})
+            setCurrentPage({...currentPage, posts:wpresp.data})
         }
       }
 

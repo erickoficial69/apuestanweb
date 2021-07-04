@@ -42,16 +42,19 @@ export const get_all_posts = async({rest_base,page,per_page}:GetPostParams)=>{
         return wp_data
 }
 export const get_posts_by_taxonomy = async({rest_base,taxonomy,term,page,per_page}:GetPostParams)=>{
-        const req_tax = await fetch(`${process.env.API}/wp/v2/${taxonomy}?slug=${term}`)
-        const res_tax:any = await req_tax.json()
-        const req_posts = await fetch(`${process.env.API}/wp/v2/${rest_base}?_embed=true&${taxonomy}=${res_tax[0].id}&page=${page?page:'1'}&per_page=${per_page?per_page:'6'}`)
-        const resp:Post[] = await req_posts.json()
-        const wp_data:WPResp={
-            data: resp,
-            total: req_posts.headers.get('x-wp-total'),
-            total_pages: req_posts.headers.get('x-wp-totalpages')
-        }
-        return wp_data
+    const req_tax = await fetch(`${process.env.API}/wp/v2/${taxonomy}?slug=${term}`)
+    const res_tax:any = await req_tax.json()
+    
+    const path = rest_base == 'pages' || rest_base == 'media' ?`${process.env.API}/wp/v2/${rest_base}?_embed=true`:`${process.env.API}/wp/v2/${rest_base}?_embed=true&${taxonomy}=${res_tax[0].id}&page=${page?page:'1'}&per_page=${per_page?per_page:'6'}`
+    
+    const req_posts = await fetch(path)
+    const resp:Post[] = await req_posts.json()
+    const wp_data:WPResp={
+        data: resp,
+        total: req_posts.headers.get('x-wp-total'),
+        total_pages: req_posts.headers.get('x-wp-totalpages')
+    }
+    return wp_data
 }
 export const get_post = async({rest_base,slug}:GetPostParams)=>{
     try {
@@ -65,7 +68,7 @@ export const get_post = async({rest_base,slug}:GetPostParams)=>{
 }
 export const get_types = async()=>{
     
-    const req = await fetch(`${process.env.API}/wp/v2/types/`)
+    const req = await fetch(`${process.env.API}/wp/v2/types?per_page=100`)
     const res = await req.json()
     return res
 }
@@ -74,4 +77,18 @@ export const get_post_type = async({type}:any)=>{
         const req = await fetch(`${process.env.API}/wp/v2/types/${type}`)
         const res = await req.json()
         return res
+}
+export const get_posts_paths = async (types:any[])=>{
+    const paths = []
+    for(let type of types){
+        
+        const req_ = await fetch(`${process.env.API}/wp/v2/${type.rest_base}?per_page=100`)
+        const res:any[] = await req_.json()
+        if(res && res.length > 0){
+            for(let post of res){
+                paths.push({params:{rest_base:type.rest_base,slug:post.slug}})
+            }
+        }
+    }
+    return paths
 }

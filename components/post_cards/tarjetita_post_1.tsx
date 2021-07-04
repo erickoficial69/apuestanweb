@@ -11,10 +11,10 @@ const Tarjetita_post_1 = ({post}:Props)=>{
     return (
             <div className="tarjetita_post_1" >
                 <div className="img_post" >
-                    <img loading="lazy" src={post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:'/logo512.png'} alt="titulo del post" />
+                    <img loading="lazy" src={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:'/logo512.png'} alt="titulo del post" />
                 </div>
                 <p>{post.excerpt?.rendered.replace('<p>','').replace('</p>','')}</p>
-                <Link href={`/${post.slug}`} >
+                <Link href={`/${post.type}/${post.slug}`} >
                     <a onClick={()=>{document.location.pathname!=`/${post.slug}`?app_dispatch({type:'loader_app',payload:true}):null}} >Ver más</a>
                 </Link>
                 <style jsx>

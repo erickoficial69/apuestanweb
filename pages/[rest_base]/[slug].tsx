@@ -1,12 +1,12 @@
 import { GetStaticPaths, GetStaticPathsContext, GetStaticProps, GetStaticPropsContext } from 'next'
 import { useRouter } from 'next/dist/client/router'
 import Head from 'next/head'
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import CatsMenu from '../../components/cats_menu'
 import { App_context } from '../../context/wp_context/app_context'
-import { get_all_posts, get_post, get_post_type } from '../../controlers/app_controller'
+import { get_post, get_posts_paths, get_post_type, get_types } from '../../controlers/app_controller'
 import { get_terms } from '../../controlers/taxonomies_controles'
-import { Post, WPResp } from '../../interfaces/app_interfaces'
+import { Post } from '../../interfaces/app_interfaces'
 
 type Props={
   post?:Post
@@ -14,17 +14,19 @@ type Props={
 }
 const The_Post = ({post,page_info}:Props)=>{
   const {app_dispatch} = useContext(App_context)
-  const [show_cats,setShow_Cats] = useState<boolean>(false)
+
   const {isFallback,asPath} = useRouter()
   if(isFallback) return <section><b>Loading...</b></section>
-  if(!page_info || !post) return <section><b>No hay datos en este momento</b></section>
-  
-  const toggle_element = (e:any)=>{
-    const li:HTMLElement = e.target
-    const ul_items = li.parentElement?.children[1]
-    ul_items?.classList.toggle('view_items')
-   
+  if(!page_info || !post){
+    useEffect(()=>{
+      app_dispatch({
+        type:'loader_app',
+        payload:false
+      })
+    },[asPath])
+    return <section><b>No hay datos en este momento</b></section>
   }
+
   useEffect(()=>{
     app_dispatch({type:'loader_app',payload:false})
   },[asPath])
@@ -58,37 +60,37 @@ const The_Post = ({post,page_info}:Props)=>{
         <link rel="shortlink" href={process.env.URL_START+asPath} />
         <link rel="canonical" href={process.env.URL_START+asPath} />
       </Head>
-    <aside>
-      <ul className="aside_mobile_toolbar" >
-        <li>Filtrar por categorias</li>
-        <li onClick={()=>setShow_Cats(!show_cats)} ><b>{show_cats?'Close':'Categorias'}</b></li>
-      </ul>
-      <CatsMenu show_cats={show_cats} page_info={page_info} setShow_Cats={setShow_Cats} toggle_element={toggle_element} />
-    </aside>
     <section >
       <h1>{post.title.rendered}</h1>
       <article dangerouslySetInnerHTML={{__html:post.content.rendered}} ></article>
     </section>
+    <aside>
+      <CatsMenu page_info={page_info} />
+    </aside>
   </>
   
 }
 export const getStaticPaths:GetStaticPaths = async(_:GetStaticPathsContext)=>{
   try{
-    await get_ty
-    const {data}:WPResp = await get_all_posts({rest_base:'posts'})
-    const paths = data.map((post:Post)=>({params:{slug:post.slug}}))
+    const types = await get_types()
+    const types_array:any = Object.values(types)
+    
+    const paths = await get_posts_paths(types_array)
+    
     return {paths,fallback:true}
   }catch(err){
-    return {paths:[{params:{slug:'_'}}],fallback:true}
+    return {paths:[{params:{rest_base:'_',slug:'_'}}],fallback:true}
   }
 }
 export const getStaticProps:GetStaticProps = async({params}:GetStaticPropsContext)=>{
   try{
-      const {slug}:any = params
-      if(slug !== '_'){
-        const post = await get_post({rest_base:'posts',slug})
-        let page_info = await get_post_type({type:'post'}) 
-        page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
+      const {rest_base,slug}:any = params
+      if(slug !== '_' && rest_base !== '_'){
+        const post = await get_post({rest_base:rest_base,slug})
+        let page_info = await get_post_type({type:rest_base}) 
+        
+          page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
+        
         
         return {props:{post,page_info},revalidate:1}
       }

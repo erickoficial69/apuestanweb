@@ -15,7 +15,7 @@ const CatsMenu = ({page_info}:Params)=>{
               <ul className="view_items" >
                 {
                   taxonomy.terms.map((ter:any,ti:number)=>{
-                    const destination = "/"+page_info.rest_base+"/"+taxonomy.rest_base+"/"+ter.slug
+                    const destination = "/page/"+page_info.rest_base+"/"+taxonomy.rest_base+"/"+ter.slug
                     return <li key={ti}><Link href={destination} ><a onClick={()=>{document.location.pathname!=destination?app_dispatch({type:'loader_app',payload:true}):null}} href={destination}>{ter.name}</a></Link></li>
                   })
                 }

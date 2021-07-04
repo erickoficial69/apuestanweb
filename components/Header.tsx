@@ -42,8 +42,8 @@ export const Header = () => {
                     <Link href="/"><a onClick={()=>{
                         document.location.pathname!='/'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)
                     }} className="icon-button" href="/"><b>Home</b></a></Link>
-                    <Link href="/pronostico"><a onClick={()=>{document.location.pathname!='/pronostico'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)}} className="icon-button" href="/pronostico"><b>pronosticos</b></a></Link>
-                    <Link href="/posts"><a onClick={()=>{document.location.pathname!='/posts'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)}} className="icon-button" href="/posts"><b>Blog</b></a></Link>
+                    <Link href="/page/pronostico"><a onClick={()=>{document.location.pathname!='/page/pronostico'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)}} className="icon-button" href="/page/pronostico"><b>pronosticos</b></a></Link>
+                    <Link href="/page/posts"><a onClick={()=>{document.location.pathname!='/page/posts'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)}} className="icon-button" href="/page/posts"><b>Blog</b></a></Link>
                 </nav>
                 <div className={app.loader_app?'loader_app':'loader_app_off'} ><Loader_app /></div>
             </div>                   

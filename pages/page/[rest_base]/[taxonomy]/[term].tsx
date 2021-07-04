@@ -1,27 +1,32 @@
-import { GetStaticPaths, GetStaticPathsContext, GetStaticProps, GetStaticPropsContext } from 'next'
+import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from 'next'
 import { useRouter } from 'next/dist/client/router'
 import Head from 'next/head'
-import { useContext, useState, useEffect } from 'react'
-import CatsMenu from '../../components/cats_menu'
-import Tarjetita_post_1 from '../../components/post_cards/tarjetita_post_1'
-import { App_context } from '../../context/wp_context/app_context'
-import { get_all_posts, get_post_type, get_types } from '../../controlers/app_controller'
-import { get_terms } from '../../controlers/taxonomies_controles'
-import { Post, WPResp } from '../../interfaces/app_interfaces'
+import { useContext, useEffect, useState } from 'react'
+import CatsMenu from '../../../../components/cats_menu'
+import Tarjetita_post_1 from '../../../../components/post_cards/tarjetita_post_1'
+import { App_context } from '../../../../context/wp_context/app_context'
+import { get_posts_by_taxonomy, get_post_type, get_types } from '../../../../controlers/app_controller'
+import { get_taxonomies, get_terms } from '../../../../controlers/taxonomies_controles'
+import { Post, WPResp } from '../../../../interfaces/app_interfaces'
 
 type Props={
   wpresp?:WPResp
   page_info:any
+  static_params:any
 }
-const Blog = ({wpresp,page_info}:Props)=>{
+const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
   const {app_dispatch} = useContext(App_context)
   const [currentPage,setCurrentPage] = useState<any>({
     page:1,
     total:24,
-    posts:wpresp?.data
+    posts:[]
   })
-  const {isFallback,asPath} = useRouter()
+  
+  const {asPath,isFallback} = useRouter()
+  
+
   if(isFallback) return <section><b>Loading...</b></section>
+  
   if(!page_info || !wpresp){
     useEffect(()=>{
       app_dispatch({
@@ -31,29 +36,33 @@ const Blog = ({wpresp,page_info}:Props)=>{
     },[asPath])
     return <section><b>No hay datos en este momento</b></section>
   }
-
   
   const next = async(param?:number)=>{
     if(param){
       setCurrentPage({...currentPage, page:param})
     }
     if(currentPage.page == 1){
-        const wpresp = await get_all_posts({rest_base:page_info.rest_base,per_page:currentPage.total,page:param})
+        const wpresp = await get_posts_by_taxonomy({rest_base:page_info.rest_base,per_page:currentPage.total,page:param,taxonomy:static_params.taxonomy,term:static_params.term})
         setCurrentPage({...currentPage, posts:wpresp.data})
         return
-    }
+      }
     if(wpresp.total_pages && currentPage.page > 1 && currentPage.page <= parseInt(wpresp.total_pages)){
-        const wpresp = await get_all_posts({rest_base:page_info.rest_base,per_page:currentPage.total,page:param})
-        setCurrentPage({...currentPage, posts:wpresp.data})
+      const wpresp = await get_posts_by_taxonomy({rest_base:page_info.rest_base,per_page:currentPage.total,page:param,taxonomy:static_params.taxonomy,term:static_params.term})
+      setCurrentPage({...currentPage, posts:wpresp.data})
     }
   }
- 
+
   useEffect(()=>{
-    app_dispatch({type:'loader_app',payload:false}) 
-  },[])
+    app_dispatch({
+      type:'loader_app',
+      payload:false
+    })
+    next() 
+  },[asPath])
+
   return <>
       <Head>
-        <title>Blog - Diaz web app</title>
+      <title>Blog - Diaz web app</title>
         <meta name="keywords" content="diaz web app, desarrollo web, desarrollo de aplicaciones moviles, desarrollo de e-commerce, desarrollo tiendas online, desarrollo de software"/>
         <meta name="description" content="Desarrollo de aplicaciones web, moviles y soluciones tecnologicas adaptadas a la necesidad del cliente. Con Diaz Web App, puedes extender tu negocio y llegar a más clientes en cualquier parte del mundo, en cualquier dispositivo y en cualquier conexión." />
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
@@ -80,17 +89,14 @@ const Blog = ({wpresp,page_info}:Props)=>{
         <link rel="canonical" href={process.env.URL_START+asPath} />
       </Head>
     
-   <section>
-    <h1>Blog de Diaz Web App</h1>          
-
-    <p>Lo que necesitas saber sobre desarrollo de software, comercio en linea y tecnología</p>          
-   
-   {wpresp.total && parseInt(wpresp.total) > 0 && currentPage.posts ?(        
-       <div id="news" className="container_posts_1" >
-            {currentPage.posts.map((post:Post)=><Tarjetita_post_1 post={post} key={post.id} />)}
-       </div>
-    ):null
-    }
+    <section>         
+       {
+         wpresp.total && parseInt(wpresp.total) > 0 && currentPage.posts?(
+          <div className="container_posts_1" >
+              {currentPage.posts.map((post:Post)=><Tarjetita_post_1 post={post} key={post.id} />)}
+          </div>
+         ):null
+       }
     
       <div className="pagination_container">
           {
@@ -120,47 +126,64 @@ const Blog = ({wpresp,page_info}:Props)=>{
             :null
           }
       </div>
-    </section>
+    </section> 
     <aside>
-      <CatsMenu page_info={page_info} />  
-    </aside>
+      <CatsMenu page_info={page_info} />
+    </aside>    
   </>
   
 }
-export const getStaticPaths:GetStaticPaths = async(_:GetStaticPathsContext)=>{
+export const getStaticPaths:GetStaticPaths = async()=>{
+  let params = {rest_base:'_',taxonomy:'_',term:'_'}
+  const paths =[{params}]
+  try{
+    const taxonomies = await get_taxonomies()
+    const tax_keys = Object.keys(taxonomies)
+    const terms = await get_terms(tax_keys)
     const types = await get_types()
-    const types_array = Object.values(types)
-    try{
-      const paths = types_array.map((type:any)=>({params:{rest_base:type.rest_base}}))
-      return {paths,fallback:true}
-    }catch(err){
-      console.log(err)
-      return {paths:[{params:{rest_base:'_'}}],fallback:true}
+    const types_array:any = Object.values(types)
+   
+    for(let type of types_array){
+      for(let taxonomy of terms){
+        if(taxonomy.terms && taxonomy.terms.length > 0){
+          for(let term of taxonomy.terms){
+            paths.push({params:{rest_base:type.rest_base,taxonomy:taxonomy.rest_base,term:term.slug}})
+          }
+        }
+      }
     }
-  
+    
+    return {paths,fallback:false}
+  }catch(err){
+    console.error(err)
+    return {paths,fallback:false}
+  }
 }
 export const getStaticProps:GetStaticProps = async({params}:GetStaticPropsContext)=>{
-  const {rest_base}:any = params
+  const {rest_base,taxonomy,term}:any = params
   
-  try{      
-      if(rest_base && rest_base !== '_'){
-        const wpresp:WPResp = await get_all_posts({rest_base:rest_base,per_page:24})
-        if(wpresp && wpresp.data.length > 0){
-          let page_info = await get_post_type({type:wpresp.data[0].type}) 
-          
-            page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
-          
-          
-          return {props:{
-            wpresp,
-            page_info
-          },revalidate:1}
-        }  
+  if(taxonomy!=='_' && rest_base!=='_'){
+    const wpresp:WPResp = await get_posts_by_taxonomy({rest_base:rest_base,taxonomy,term,per_page:24})
+    if(wpresp && wpresp.data.length > 0){
+      let page_info = await get_post_type({type:wpresp.data[0].type}) 
+      
+        page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
+      
+        
+      return {
+        props:{
+          wpresp,
+          page_info,
+          static_params:params
+        },
+        revalidate:1
       }
+    }
       return {props:{},revalidate:1}
-  }catch(err){
-      return {props:{},revalidate:1}
+  
+  }else{
+    return {props:{},revalidate:1}
   }
 }
 
-export default Blog
+export default the_Posts_Term
