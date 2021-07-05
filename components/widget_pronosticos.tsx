@@ -1,10 +1,13 @@
 import Link from "next/link"
+import { useContext } from "react"
+import { App_context } from "../context/wp_context/app_context"
 import { Pronostico } from "../interfaces/app_interfaces"
 
 type Props={
     pronosticos:Pronostico[]
 }
 const Widget_Pronosticos = ({pronosticos}:Props)=>{
+    const {app_dispatch} = useContext(App_context)
     pronosticos.sort(function(a,b){
         let date_a = new Date(a.fecha_partido)
         let date_b = new Date(b.fecha_partido)
@@ -16,11 +19,19 @@ const Widget_Pronosticos = ({pronosticos}:Props)=>{
         <button className="btn_more" >Ver mas</button>
         <ul>
         {
-            pronosticos.map((pronostico:Pronostico)=>{
+            pronosticos.map((pronostico:Pronostico,i:number)=>{
+                const href= "/"+pronostico.type+"/"+pronostico.slug
                 return(
                     
-                    <Link href="/">
-                        <a href="/" className="item_w_pronostico" >
+                    <Link key={i} href={href}>
+                        <a onClick={()=>{
+                            document.location.pathname !== href?app_dispatch(
+                                {
+                                    type:'loader_app',
+                                    payload:true
+                                }
+                            ):null
+                        }} href={href} className="item_w_pronostico" >
                             <div className="item_w_img" >
                                 
                                 <div>

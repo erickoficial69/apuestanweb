@@ -110,10 +110,24 @@ export type File={
     source_url: string
 }
 export type WPResp={
-    data:Post[]
-    total: string |  null
+    data:any[]
+    total: string | null
     total_pages: string | null
     
+}
+export type StatePosts={
+    posts:any[]
+    page: number
+    per_page: number
+    
+}
+export type NextPosts={
+    page?:number
+    setState:(param:StatePosts)=>void
+    statePost:StatePosts
+    rest_base:string
+    response?:WPResp
+    params?:any
 }
 export type AppAction = 
 | { type: 'get_app_info', payload:any }

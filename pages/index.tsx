@@ -1,12 +1,13 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { App_context } from '../context/wp_context/app_context'
 import Head from 'next/head'
 import { GetStaticProps } from 'next'
 import { get_all_posts } from '../controlers/app_controller'
-import { Post, WPResp } from '../interfaces/app_interfaces'
+import { Post, StatePosts, WPResp } from '../interfaces/app_interfaces'
 import Widget_Pronosticos from '../components/widget_pronosticos'
 import Widget_posts from '../components/widget_posts'
 import Tarjetita_post_1 from '../components/post_cards/tarjetita_post_1'
+import Pagination from '../components/pagination'
 
 type Props={
     resp:WPResp
@@ -14,47 +15,14 @@ type Props={
 }
 const IndexPage = ({resp,resp_posts}:Props) => {
     const {app_dispatch} = useContext(App_context)
-    const [currentPage,setCurrentPage] = useState<any>({
+    const [statePosts,setStatePosts] = useState<StatePosts>({
         page:1,
-        total:24,
-        posts:resp.data
-      })
-    const [statePosts,setStatePosts] = useState<any>({
-        page:1,
-        total:24,
-        posts:resp.data
+        per_page:24,
+        posts:resp_posts.data
       })
 
-    const next = async(param?:number)=>{
-        if(param){
-          setCurrentPage({...currentPage, page:param})
-        }
-        if(currentPage.page == 1){
-            const wpresp = await get_all_posts({rest_base:'posts',per_page:currentPage.total,page:param})
-            setCurrentPage({...currentPage, posts:wpresp.data})
-            return
-        }
-        if(resp.total_pages && currentPage.page > 1 && currentPage.page <= parseInt(resp.total_pages)){
-            const wpresp = await get_all_posts({rest_base:'posts',per_page:currentPage.total,page:param})
-            setCurrentPage({...currentPage, posts:wpresp.data})
-        }
-      }
-
-    const next_posts = async(param?:number)=>{
-        if(param){
-          setStatePosts({...statePosts, page:param})
-        }
-        if(statePosts.page == 1){
-            const wpresp = await get_all_posts({rest_base:'posts',per_page:statePosts.total,page:param})
-            setStatePosts({...statePosts, posts:wpresp.data})
-            return
-        }
-        if(resp.total_pages && statePosts.page > 1 && statePosts.page <= parseInt(resp.total_pages)){
-            const wpresp = await get_all_posts({rest_base:'posts',per_page:statePosts.total,page:param})
-            setStatePosts({...statePosts, posts:wpresp.data})
-        }
-      }
-
+    const widget_pronosticos = useMemo(()=><Widget_Pronosticos pronosticos={resp.data} />,[])
+    const widget_posts = useMemo(()=><Widget_posts posts={statePosts.posts} />,[])
     useEffect(()=>{
         app_dispatch({type:'loader_app',payload:false})
     },[])
@@ -88,8 +56,6 @@ const IndexPage = ({resp,resp_posts}:Props) => {
         <link rel="canonical" href={process.env.URL_START} />
     </Head>
     
-    
-   
     <section>
         <div className="container_posts_1">
             {
@@ -98,72 +64,18 @@ const IndexPage = ({resp,resp_posts}:Props) => {
                 ):null
             }
         </div>
-        <div className="pagination_container">
-          {
-            resp.total_pages?
-              currentPage.page > 1?(
-                  <button className="icon-button" onClick={()=>next(currentPage.page-1)} style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Anterior</title><path d="M240,424V328c116.4,0,159.39,33.76,208,96,0-119.23-39.57-240-208-240V88L64,256Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):(
-                <button className="icon-button" style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Anterior</title><path d="M240,424V328c116.4,0,159.39,33.76,208,96,0-119.23-39.57-240-208-240V88L64,256Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              )
-            :null
-          }
-          {
-            resp.total_pages?
-              currentPage.page >= 1 && currentPage.page < parseInt(resp.total_pages) ?(
-                  <button className="icon-button" onClick={()=>next(currentPage.page+1)} style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Siguiente</title><path d="M448,256,272,88v96C103.57,184,64,304.77,64,424c48.61-62.24,91.6-96,208-96v96Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):currentPage.page >= 1 && currentPage.page == parseInt(resp.total_pages)?(
-                <button className="icon-button" style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Siguiente</title><path d="M448,256,272,88v96C103.57,184,64,304.77,64,424c48.61-62.24,91.6-96,208-96v96Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):null
-            :null
-          }
-      </div>
-      <div className="pagination_container">
-          {
-            resp.total_pages?
-              statePosts.page > 1?(
-                  <button className="icon-button" onClick={()=>next_posts(statePosts.page-1)} style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Anterior</title><path d="M240,424V328c116.4,0,159.39,33.76,208,96,0-119.23-39.57-240-208-240V88L64,256Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):(
-                <button className="icon-button" style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Anterior</title><path d="M240,424V328c116.4,0,159.39,33.76,208,96,0-119.23-39.57-240-208-240V88L64,256Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              )
-            :null
-          }
-          {
-            resp.total_pages?
-              statePosts.page >= 1 && statePosts.page < parseInt(resp.total_pages) ?(
-                  <button className="icon-button" onClick={()=>next_posts(statePosts.page+1)} style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Siguiente</title><path d="M448,256,272,88v96C103.57,184,64,304.77,64,424c48.61-62.24,91.6-96,208-96v96Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):statePosts.page >= 1 && statePosts.page == parseInt(resp.total_pages)?(
-                <button className="icon-button" style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Siguiente</title><path d="M448,256,272,88v96C103.57,184,64,304.77,64,424c48.61-62.24,91.6-96,208-96v96Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):null
-            :null
-          }
-      </div>
+
+        <Pagination statePost={statePosts} setState={setStatePosts} response={resp_posts} rest_base='posts' />
     </section>
     <aside>
         {
-            resp.total && parseInt(resp.total) > 0?(
-                <Widget_Pronosticos pronosticos={currentPage.posts} />
+            resp.total_pages && parseInt(resp.total_pages) > 0?(
+              widget_pronosticos
             ):null
         }
         {
-            resp_posts.total && parseInt(resp_posts.total) > 0?(
-                <Widget_posts posts={statePosts.posts} />
+            resp_posts.total_pages && parseInt(resp_posts.total_pages) > 0?(
+              widget_posts
             ):null
         }           
     </aside>
@@ -171,8 +83,8 @@ const IndexPage = ({resp,resp_posts}:Props) => {
 }
 
 export const getStaticProps:GetStaticProps = async()=>{
-    const resp = await get_all_posts({rest_base:'pronostico',page:1,per_page:12})
-    const resp_posts = await get_all_posts({rest_base:'posts',page:1,per_page:12})
+    const resp = await get_all_posts({rest_base:'pronostico',page:1,per_page:24})
+    const resp_posts = await get_all_posts({rest_base:'posts',page:1,per_page:24})
     return{
         props:{
             resp,

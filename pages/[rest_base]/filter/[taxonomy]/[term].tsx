@@ -3,23 +3,25 @@ import { useRouter } from 'next/dist/client/router'
 import Head from 'next/head'
 import { useContext, useEffect, useState } from 'react'
 import CatsMenu from '../../../../components/cats_menu'
+import Pagination from '../../../../components/pagination'
 import Tarjetita_post_1 from '../../../../components/post_cards/tarjetita_post_1'
 import { App_context } from '../../../../context/wp_context/app_context'
-import { get_posts_by_taxonomy, get_post_type, get_types } from '../../../../controlers/app_controller'
+import { get_posts_by_taxonomy, get_post_type } from '../../../../controlers/app_controller'
 import { get_taxonomies, get_terms } from '../../../../controlers/taxonomies_controles'
-import { Post, WPResp } from '../../../../interfaces/app_interfaces'
+import { Post, StatePosts, WPResp } from '../../../../interfaces/app_interfaces'
+import { wp_post_types } from '../../../../wpconfig'
 
 type Props={
   wpresp?:WPResp
   page_info:any
   static_params:any
 }
-const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
+const The_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
   const {app_dispatch} = useContext(App_context)
-  const [currentPage,setCurrentPage] = useState<any>({
+  const [currentPage,setCurrentPage] = useState<StatePosts>({
     page:1,
-    total:24,
-    posts:[]
+    per_page:24,
+    posts:wpresp?wpresp.data:[]
   })
   
   const {asPath,isFallback} = useRouter()
@@ -37,27 +39,17 @@ const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
     return <section><b>No hay datos en este momento</b></section>
   }
   
-  const next = async(param?:number)=>{
-    if(param){
-      setCurrentPage({...currentPage, page:param})
-    }
-    if(currentPage.page == 1){
-        const wpresp = await get_posts_by_taxonomy({rest_base:page_info.rest_base,per_page:currentPage.total,page:param,taxonomy:static_params.taxonomy,term:static_params.term})
-        setCurrentPage({...currentPage, posts:wpresp.data})
-        return
-      }
-    if(wpresp.total_pages && currentPage.page > 1 && currentPage.page <= parseInt(wpresp.total_pages)){
-      const wpresp = await get_posts_by_taxonomy({rest_base:page_info.rest_base,per_page:currentPage.total,page:param,taxonomy:static_params.taxonomy,term:static_params.term})
-      setCurrentPage({...currentPage, posts:wpresp.data})
-    }
+  const fetch_change = async()=>{
+    const newdata = await get_posts_by_taxonomy({rest_base:page_info.rest_base,taxonomy:static_params.taxonomy,term:static_params.term,per_page:currentPage.per_page})
+    setCurrentPage({...currentPage, posts:newdata.data})
   }
 
   useEffect(()=>{
+    fetch_change()
     app_dispatch({
       type:'loader_app',
       payload:false
     })
-    next() 
   },[asPath])
 
   return <>
@@ -98,34 +90,7 @@ const the_Posts_Term = ({page_info,wpresp,static_params}:Props)=>{
          ):null
        }
     
-      <div className="pagination_container">
-          {
-            wpresp.total_pages?
-              currentPage.page > 1?(
-                  <button className="icon-button" onClick={()=>next(currentPage.page-1)} style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Anterior</title><path d="M240,424V328c116.4,0,159.39,33.76,208,96,0-119.23-39.57-240-208-240V88L64,256Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):(
-                <button className="icon-button" style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Anterior</title><path d="M240,424V328c116.4,0,159.39,33.76,208,96,0-119.23-39.57-240-208-240V88L64,256Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              )
-            :null
-          }
-          {
-            wpresp.total_pages?
-              currentPage.page >= 1 && currentPage.page < parseInt(wpresp.total_pages) ?(
-                  <button className="icon-button" onClick={()=>next(currentPage.page+1)} style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Siguiente</title><path d="M448,256,272,88v96C103.57,184,64,304.77,64,424c48.61-62.24,91.6-96,208-96v96Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):currentPage.page >= 1 && currentPage.page == parseInt(wpresp.total_pages)?(
-                <button className="icon-button" style={{padding:"3px 6px"}} >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>Siguiente</title><path d="M448,256,272,88v96C103.57,184,64,304.77,64,424c48.61-62.24,91.6-96,208-96v96Z" style={{width:'32px',height:'32px',fill:'none',stroke:'#000',strokeLinejoin:'round',strokeWidth:'32px'}}/></svg>
-                  </button>
-              ):null
-            :null
-          }
-      </div>
+       <Pagination statePost={currentPage} setState={setCurrentPage} response={wpresp} rest_base={page_info.rest_base} params={static_params} />
     </section> 
     <aside>
       <CatsMenu page_info={page_info} />
@@ -140,10 +105,8 @@ export const getStaticPaths:GetStaticPaths = async()=>{
     const taxonomies = await get_taxonomies()
     const tax_keys = Object.keys(taxonomies)
     const terms = await get_terms(tax_keys)
-    const types = await get_types()
-    const types_array:any = Object.values(types)
    
-    for(let type of types_array){
+    for(let type of wp_post_types){
       for(let taxonomy of terms){
         if(taxonomy.terms && taxonomy.terms.length > 0){
           for(let term of taxonomy.terms){
@@ -163,12 +126,11 @@ export const getStaticProps:GetStaticProps = async({params}:GetStaticPropsContex
   const {rest_base,taxonomy,term}:any = params
   
   if(taxonomy!=='_' && rest_base!=='_'){
-    const wpresp:WPResp = await get_posts_by_taxonomy({rest_base:rest_base,taxonomy,term,per_page:24})
+    const wpresp = await get_posts_by_taxonomy({rest_base:rest_base,taxonomy,term,per_page:24})
     if(wpresp && wpresp.data.length > 0){
-      let page_info = await get_post_type({type:wpresp.data[0].type}) 
+      let page_info = await get_post_type({slug:wpresp.data[0].type}) 
       
-        page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
-      
+      page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
         
       return {
         props:{
@@ -186,4 +148,4 @@ export const getStaticProps:GetStaticProps = async({params}:GetStaticPropsContex
   }
 }
 
-export default the_Posts_Term
+export default The_Posts_Term
