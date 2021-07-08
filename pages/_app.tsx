@@ -4,9 +4,10 @@ import { Footer } from '../components/Footer'
 import { App_provider } from "../context/wp_context/app_context";
 import Head from 'next/head'
 import CriticalStyles from "../components/styled_components/critical_critical";
+import { useMemo } from "react";
 
 function Myapp({ Component, pageProps }: AppProps) {
- 
+  const header = useMemo(()=><Header {...pageProps} />,[])
   return <App_provider>
     <Head>
         <link rel="manifest" href="/site.webmanifest" />
@@ -20,7 +21,7 @@ function Myapp({ Component, pageProps }: AppProps) {
         
       </Head>
       <CriticalStyles/>
-      <Header {...pageProps} />
+      {header}
       <main>
         <Component {...pageProps}/>
         <Footer />

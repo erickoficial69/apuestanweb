@@ -4,29 +4,14 @@ const CriticalStyles = ()=>{
             {
                 `
                 :root{
-                    --bg-app:rgb(242, 242, 242);
-                    --font-color:#484848;
-                    --primary-color:#ff4141;
-                    --secondary-color:#1e73bf;
-                    --icon-color:white;
-                    --shadow:rgba(0,0,0, .12);
-                    
-                    --bg-page:rgba(255, 255, 255, 1);
-                    --bg-tarjetitas:rgb(250, 250, 250);
-                    --bg-average:rgba(30, 115, 191, .25);
-                    --font-color-2:#808080;
-                    --color-sub-title:#fff;
-                    --color-title-sidebar:rgb(30,115,191);
-                    --bg-sub-title:#043a69;
                     --shadow-length: 36px ;
-                }
-                :root{	
                     --height-header:50px;
                     --radius:5px;
                     --index-header:3;
                     --padding-horizontal:0;
                     --max-width: 1173px;
                 }
+                
                 *{
                     margin: 0;
                     box-sizing: border-box;
@@ -41,12 +26,14 @@ const CriticalStyles = ()=>{
                 }
                 button{
                     background:transparent;
+                    cursor:pointer;
                 }
                 .icon-button{
                     display: flex;
                     flex-flow: row nowrap;
                     align-items: center;
                     justify-content: space-between;
+                    cursor:pointer;
                 }
                 .icon-button > *{
                     text-transform: uppercase;
@@ -106,18 +93,25 @@ const CriticalStyles = ()=>{
                     background:transparent;
                     width:100%;
                     display:block;
+                    padding:0 5px;
+                }
+                .toolbar .header_form input::placeholder{
+                    color:white;
                 }
                 .toolbar nav.principal .header_nav{
                     border-bottom:1px solid var(--shadow);
-                    padding:5px 2px;
+                    padding:15px 2px;
                 }
                 .toolbar nav.principal .header_nav a{
                     text-align:center;
                 }
+                .toolbar nav.principal > a{
+                    border-bottom:1px solid var(--shadow);
+                    padding:5px 0 5px 10px;
+                }
                 .toolbar nav.principal, .bg_menu_principal{
                     position:fixed;
                     top:0;
-                    left:-100vw;
                     right:0;
                     bottom:0;
                     background:rgba(0,0,0, .2);
@@ -153,6 +147,10 @@ const CriticalStyles = ()=>{
                     display:grid;
                     grid-template-columns:1fr;
                 }
+                aside{
+                    display:grid;
+                    grid-template-columns:1fr;
+                  }
                 main section,.aside_widgets{
                     background:var(--bg-page);
                     width:100%;
@@ -161,41 +159,7 @@ const CriticalStyles = ()=>{
                     height: max-content;
                     margin-top:10px ;
                 }
-                //////
-                #theme_mode_header span,.btn_light::after,.btn_dark::after{
-                    z-index: 1;
-                    font-size:16px;
-                    text-align:center;
-                }
-                #theme_mode_header{
-                    position: relative;
-                    z-index: 3;
-                    width:50px;
-                    min-width:50px;
-                    max-width:50px;
-                    display:flex;
-                    flex-flow:row nowrap;
-                    justify-content:space-between;
-                    box-shadow:0px 0px 2px black;
-                    border-radius:10px;
-                }
-                .btn_light::after{
-                    display:grid;
-                    place-items: center;
-                    place-content: center;
-                    color:white;
-                    z-index: -1;
-                    content:"";
-                    position: absolute;
-                    border-radius: 50%;
-                    background: var(--secondary-color);
-                    left:2px;
-                    top:1px;
-                    transition: all 1s ease;
-                    width:18px;
-                    height:18px;
-                }
-                ////////
+                
                 @media (min-width:640px){
                     .toolbar .name_site{
                         display:flex;
@@ -204,6 +168,15 @@ const CriticalStyles = ()=>{
                         margin:0 5px;
                         width:calc(100% - 200px);
                     }
+                    aside{
+                        grid-template-columns:repeat(2,1fr);
+                        gap:5px;
+                      }
+                }
+                @media(min-width:810px){
+                    aside{
+                        grid-template-columns:repeat(3,1fr);
+                      }
                 }
                 @media(min-width:1024px){
                     main,header .toolbar, nav.sports_bar{
@@ -213,8 +186,17 @@ const CriticalStyles = ()=>{
                         grid-template-columns:1fr 250px;
                         gap:5px;
                     }
+                    aside{
+                        grid-template-columns:1fr;
+                      }
                     .toolbar{
                         background:unset;
+                    }
+                    .toolbar .header_form input{
+                        background:rgba(0,0,0, .2);
+                        width:300px;
+                        border-radius:var(--radius);
+                        padding:3px 10px;
                     }
                 }
                 .aside_widgets{

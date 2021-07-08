@@ -17,14 +17,16 @@ type Props={
   page_info:any
 }
 const Blog = ({wpresp,page_info}:Props)=>{
-  const {app_dispatch} = useContext(App_context)
+  const {app,app_dispatch} = useContext(App_context)
   const [statePosts,setStatePosts] = useState<StatePosts>({
     page:1,
-    per_page:24,
-    posts:wpresp?wpresp.data:[]
+    per_page:24
   })
+
   const {isFallback,asPath} = useRouter()
+
   if(isFallback) return <section><b>Loading...</b></section>
+  
   if(!page_info || !wpresp){
     useEffect(()=>{
       app_dispatch({
@@ -36,6 +38,12 @@ const Blog = ({wpresp,page_info}:Props)=>{
   }
   
   useEffect(()=>{
+    app_dispatch(
+      {
+        type:'get_all_posts',
+        payload:wpresp
+      }
+    )
     app_dispatch({type:'loader_app',payload:false}) 
   },[])
   return <>
@@ -72,12 +80,21 @@ const Blog = ({wpresp,page_info}:Props)=>{
 
     <p>Lo que necesitas saber sobre desarrollo de software, comercio en linea y tecnología</p>          
    
-   {wpresp.total && parseInt(wpresp.total) > 0?(        
-       <div id="news" className="container_posts_1" >
-            {statePosts.posts.map((post:Post)=><Tarjetita_post_1 post={post} key={post.id} />)}
-       </div>
-    ):null
+    <div id="news" >  
+    {
+      app.loader_request?(
+        <h1>Loading...</h1>
+      ):(
+        wpresp.total && parseInt(wpresp.total) > 0?(
+                
+          <div className="container_posts_1" >
+                {app.posts.data.map((post:Post)=><Tarjetita_post_1 post={post} key={post.id} />)}
+          </div>
+        
+        ):<b>No hay datos</b>
+      )
     }
+    </div>
     
       <Pagination statePost={statePosts} setState={setStatePosts} response={wpresp} rest_base={page_info.rest_base} />
     </section>
@@ -85,6 +102,20 @@ const Blog = ({wpresp,page_info}:Props)=>{
       <Widget_posts posts={wpresp.data} />
       <CatsMenu page_info={page_info} />  
     </aside>
+
+    <style jsx>
+      {
+        `
+        
+        section h1, section > p{
+          text-align:center;
+        }
+        section > p{
+          padding:10px;
+        }
+        `
+      }
+    </style>
   </>
   
 }

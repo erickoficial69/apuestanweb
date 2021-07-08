@@ -26,6 +26,7 @@ const CatsMenu = ({page_info}:Params)=>{
         <style jsx>
           {
             `
+            
               .aside_widgets,.cats_items{
                 height:max-content;
                 max-height:unset;
@@ -47,6 +48,7 @@ const CatsMenu = ({page_info}:Params)=>{
               .cats_items > li a:hover{
                 color:var(--secondary-color);
               }
+              
             `
           }
         </style>
