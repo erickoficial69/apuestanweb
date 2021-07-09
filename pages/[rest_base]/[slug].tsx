@@ -76,6 +76,11 @@ const The_Post = ({post,page_info}:Props)=>{
         }
         section > article{
           padding:10px;
+          margin:auto;
+        }
+        section > article p > img{
+          width:100%;
+          height:auto;
         }
         `
       }

@@ -1,9 +1,10 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { App_context } from '../context/wp_context/app_context'
 import Head from 'next/head'
 import { get_all_posts } from '../controlers/app_controller'
-import { Post } from '../interfaces/app_interfaces'
+import { Post, WPResp } from '../interfaces/app_interfaces'
 import dynamic from 'next/dynamic'
+import { GetStaticProps, GetStaticPropsContext } from 'next'
 
 const Tarjetita_post_1 = dynamic(
   () => import('../components/post_cards/tarjetita_post_1'),
@@ -20,23 +21,19 @@ const Widget_Pronosticos = dynamic(
   { loading: () => <p>Loading posts...</p> }
 )
 
+type Props={
+  resp_pronosticos:WPResp
+  resp_posts:WPResp
+}
 
-const IndexPage = () => {
+const IndexPage = ({resp_pronosticos,resp_posts}:Props) => {
     const {app,app_dispatch} = useContext(App_context)
-    const [pronosticos,setPronosticos] = useState<any[]>([])
 
-    const starting = async()=>{
-      const resp = await get_all_posts({rest_base:process.env.APP_ENV !== 'production'?'pronostico':"pronostico",page:1,per_page:6})
-      const resp_posts = await get_all_posts({rest_base:'posts',page:1,per_page:6})
-
-      app_dispatch({type:'get_all_posts',payload:resp_posts})
-      setPronosticos(resp.data)
-    }
-
-    const widget_pronosticos = useMemo(()=><Widget_Pronosticos pronosticos={pronosticos} />,[pronosticos])
-    const widget_posts = useMemo(()=><Widget_posts posts={app.posts.data} />,[app.posts])
+    const widget_pronosticos = useMemo(()=><Widget_Pronosticos pronosticos={resp_pronosticos?resp_pronosticos.data:[]} />,[])
+    const widget_posts = useMemo(()=><Widget_posts posts={resp_posts?resp_posts.data:[]} />,[])
+    
     useEffect(()=>{
-      starting()
+        app_dispatch({type:'get_all_posts',payload:resp_posts})
         app_dispatch({type:'loader_app',payload:false})
     },[])
     return <>
@@ -71,23 +68,19 @@ const IndexPage = () => {
     
     <section>
     {
-        app.loader_request?(
-          <h1>Loading...</h1>
-        ):(
-          app.posts && app.posts.total && parseInt(app.posts.total) > 0?(
+        app.posts && app.posts.total && parseInt(app.posts.total) > 0?(
             <section id="news" >         
             <div className="container_posts_1" >
                   {app.posts.data.map((post:Post)=><Tarjetita_post_1 post={post} key={post.id} />)}
             </div>
           </section>
-          ):<section>No hay datos</section>
-        )
+        ):<section>No hay datos</section>
     }   
 
     </section>
     <aside>
         {
-            pronosticos.length > 0?(
+            resp_pronosticos && resp_pronosticos.data.length > 0?(
               widget_pronosticos
             ):null
         }
@@ -100,4 +93,23 @@ const IndexPage = () => {
   </>
 }
 
+export const getStaticProps:GetStaticProps = async(_:GetStaticPropsContext)=>{
+  try{
+      const resp_pronosticos = await get_all_posts({rest_base:process.env.APP_ENV !== 'production'?'pronostico':"pronostico",page:1,per_page:6})
+      const resp_posts = await get_all_posts({rest_base:'posts',page:1,per_page:6})
+      return{
+        props:{
+          resp_pronosticos,
+          resp_posts 
+        },
+        revalidate:1
+      }
+  }catch(err){
+    console.log(err)
+    return{
+      props:{},
+      revalidate:1
+    }
+  }
+}
 export default IndexPage

@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import { useContext } from "react"
 import { App_context } from "../../context/wp_context/app_context"
@@ -12,7 +11,7 @@ const Tarjetita_post_1 = ({post}:Props)=>{
     return (
             <div className="tarjetita_post_1" >
                 <div className="img_post" >
-                    <Image width="200" height="200" src={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:'/logo512.png'} alt={post.title.rendered} />
+                    <img loading="lazy" width="200" height="200" src={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:'/logo512.png'} alt={post.title.rendered} />
                 </div>
                 <p>{post.excerpt?.rendered.replace('<p>','').replace('</p>','')}</p>
                 <Link href={`/${post.type}/${post.slug}`} >
