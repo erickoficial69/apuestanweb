@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { App_context } from '../context/wp_context/app_context'
 import Head from 'next/head'
 import { get_all_posts } from '../controlers/app_controller'
@@ -15,19 +15,25 @@ const Widget_posts = dynamic(
   { loading: () => <p>Loading posts...</p> }
 )
 
+const Widget_Pronosticos = dynamic(
+  () => import('../components/widget_pronosticos'),
+  { loading: () => <p>Loading posts...</p> }
+)
 
 
 const IndexPage = () => {
     const {app,app_dispatch} = useContext(App_context)
+    const [pronosticos,setPronosticos] = useState<any[]>([])
 
     const starting = async()=>{
-      
+      const resp = await get_all_posts({rest_base:process.env.APP_ENV !== 'production'?'pronostico':"pronostico",page:1,per_page:6})
       const resp_posts = await get_all_posts({rest_base:'posts',page:1,per_page:6})
 
       app_dispatch({type:'get_all_posts',payload:resp_posts})
+      setPronosticos(resp.data)
     }
 
-    
+    const widget_pronosticos = useMemo(()=><Widget_Pronosticos pronosticos={pronosticos} />,[pronosticos])
     const widget_posts = useMemo(()=><Widget_posts posts={app.posts.data} />,[app.posts])
     useEffect(()=>{
       starting()
@@ -80,6 +86,11 @@ const IndexPage = () => {
 
     </section>
     <aside>
+        {
+            pronosticos.length > 0?(
+              widget_pronosticos
+            ):null
+        }
         {
             app.posts && app.posts.total && parseInt(app.posts.total) > 0?(
               widget_posts
