@@ -14,15 +14,14 @@ type Props={
     resp_posts:WPResp
 }
 const IndexPage = ({resp,resp_posts}:Props) => {
-    const {app_dispatch} = useContext(App_context)
+    const {app,app_dispatch} = useContext(App_context)
     const [statePosts,setStatePosts] = useState<StatePosts>({
         page:1,
-        per_page:24,
-        posts:resp_posts.data
+        per_page:24
       })
 
     const widget_pronosticos = useMemo(()=><Widget_Pronosticos pronosticos={resp.data} />,[])
-    const widget_posts = useMemo(()=><Widget_posts posts={statePosts.posts} />,[])
+    const widget_posts = useMemo(()=><Widget_posts posts={app.posts.data} />,[])
     useEffect(()=>{
         app_dispatch({type:'loader_app',payload:false})
     },[])
@@ -57,13 +56,19 @@ const IndexPage = ({resp,resp_posts}:Props) => {
     </Head>
     
     <section>
-        <div className="container_posts_1">
-            {
-                resp_posts.total && parseInt(resp_posts.total) > 0?(
-                    statePosts.posts.map((post:Post)=><Tarjetita_post_1 post={post} key={post.id}/>)
-                ):null
-            }
-        </div>
+    {
+        app.loader_request?(
+          <h1>Loading...</h1>
+        ):(
+          resp_posts.total && parseInt(resp_posts.total) > 0?(
+            <section id="news" >         
+            <div className="container_posts_1" >
+                  {app.posts.data.map((post:Post)=><Tarjetita_post_1 post={post} key={post.id} />)}
+            </div>
+          </section>
+          ):<section>No hay datos</section>
+        )
+    }   
 
         <Pagination statePost={statePosts} setState={setStatePosts} response={resp_posts} rest_base='posts' />
     </section>
