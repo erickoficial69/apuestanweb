@@ -4,9 +4,22 @@ import Head from 'next/head'
 import { GetStaticProps } from 'next'
 import { get_all_posts } from '../controlers/app_controller'
 import { Post, WPResp } from '../interfaces/app_interfaces'
-import Widget_Pronosticos from '../components/widget_pronosticos'
-import Widget_posts from '../components/widget_posts'
-import Tarjetita_post_1 from '../components/post_cards/tarjetita_post_1'
+import dynamic from 'next/dynamic'
+
+const Tarjetita_post_1 = dynamic(
+  () => import('../components/post_cards/tarjetita_post_1'),
+  { loading: () => <p>Loading posts...</p> }
+)
+
+const Widget_posts = dynamic(
+  () => import('../components/widget_posts'),
+  { loading: () => <p>Loading posts...</p> }
+)
+
+const Widget_Pronosticos = dynamic(
+  () => import('../components/widget_pronosticos'),
+  { loading: () => <p>Loading posts...</p> }
+)
 
 type Props={
     resp:WPResp
