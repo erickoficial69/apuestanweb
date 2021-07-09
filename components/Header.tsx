@@ -5,6 +5,8 @@ import { App_context } from '../context/wp_context/app_context'
 import Loader_app from './loader_app'
 import {Sports_bar} from './Sports_bar'
 
+const path_pronosticos = process.env.APP_ENV !== 'production'?'/pronostico':"/events"
+
 export const Header = () => {
     const {app,app_dispatch} = useContext(App_context)
     const [menu,setMenu] = useState<boolean>(false)
@@ -45,7 +47,10 @@ export const Header = () => {
                     <Link href="/"><a onClick={()=>{
                         document.location.pathname!='/'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)
                     }} className="icon-button" href="/"><b>Home</b></a></Link>
-                    <Link href="/events"><a onClick={()=>{document.location.pathname!='/events'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)}} className="icon-button" href="/events"><b>pronosticos</b></a></Link>
+
+                    <Link href={path_pronosticos}><a onClick={()=>{document.location.pathname != path_pronosticos?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)}} className="icon-button" href={path_pronosticos}><b>pronosticos</b></a></Link>
+
+
                     <Link href="/posts"><a onClick={()=>{document.location.pathname!='/posts'?app_dispatch({type:'loader_app',payload:true}):null;setMenu(!menu)}} className="icon-button" href="/posts"><b>Blog</b></a></Link>
                 </nav>
                 {/**Loader & background menu */}

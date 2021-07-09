@@ -16,8 +16,8 @@ export const  wp_post_types:Post_type[]=[
   },
   
   {
-    name:"events",
-    slug: "events",
-    rest_base: "events"
+    name:process.env.APP_ENV !== 'production'?'pronostico':"events",
+    slug: process.env.APP_ENV !== 'production'?'pronostico':"events",
+    rest_base: process.env.APP_ENV !== 'production'?'pronostico':"events"
   }
 ]   

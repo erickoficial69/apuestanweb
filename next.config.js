@@ -7,5 +7,6 @@ module.exports = withOffline({
   env:{
     API:process.env.API || 'http://localhost:5000/wp-json',
     URL_START:process.env.URL_START || 'http://localhost:3000',
+    APP_ENV:process.env.NODE_ENV
   }
 })

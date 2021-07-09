@@ -96,7 +96,8 @@ const IndexPage = ({resp,resp_posts}:Props) => {
 }
 
 export const getStaticProps:GetStaticProps = async()=>{
-    const resp = await get_all_posts({rest_base:'events',page:1,per_page:6})
+  console.log(process.env.APP_ENV )
+    const resp = await get_all_posts({rest_base:process.env.APP_ENV !== 'production'?'pronostico':"events",page:1,per_page:6})
     const resp_posts = await get_all_posts({rest_base:'posts',page:1,per_page:6})
     return{
         props:{
