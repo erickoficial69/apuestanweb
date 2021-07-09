@@ -22,7 +22,7 @@ const Widget_posts = ({posts}:Props)=>{
                     <Link key={i} href={href}>
                         <a onClick={()=>{document.location.pathname != href?app_dispatch({type:'loader_app',payload:true}):null}} href={href} className="aside_item_post">
                             <div>
-                                <Image width="200px" height="200px" src={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:'/logo512.png'} alt={post.title.rendered} placeholder="blur"/>                                
+                                <Image width="200px" height="200px" src={post._embedded && post._embedded["wp:featuredmedia"]?post._embedded["wp:featuredmedia"][0].source_url:'/logo512.png'} alt={post.title.rendered} />                                
                             </div>
                             <div>
                                 <h4>{post.title.rendered}</h4>
