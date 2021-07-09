@@ -81,6 +81,7 @@ export const Header = () => {
                 }
                 nav.principal,.bg_menu_principal{
                     left:${menu?'0':'-100vw'};
+                    backdrop-filter:blur(4px);
                 }
                 .loader_app, .loader_app_off {
                     top: 0;
