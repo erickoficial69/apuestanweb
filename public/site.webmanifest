@@ -1,6 +1,6 @@
 {
-  "short_name": "DWA",
-  "name": "Diaz Web App",
+  "short_name": "Apuestanweb",
+  "name": "Apuestanweb",
   "description": "Desarrollo de aplicaciones web, moviles y soluciones tecnologiocas adaptadas a la necesidad del cliente. Con Diaz Web App, puedes extender tu negocio y llegar a más clientes en cualquier parte del mundo, en cualquier dispositivo y en cualquier conexión",
   "icons": [
     {
@@ -22,7 +22,7 @@
   "theme_color": "rgb(10,10,10)",
   "shortcuts": [
     {
-      "name": "Diaz Web App",
+      "name": "Apuestanweb",
       "short_name": "DWA",
       "description": "Desarrollo de aplicaciones web, moviles y soluciones tecnologiocas adaptadas a la necesidad del cliente. Con Diaz Web App, puedes extender tu negocio y llegar a más clientes en cualquier parte del mundo, en cualquier dispositivo y en cualquier conexión.",
       "url": "/",

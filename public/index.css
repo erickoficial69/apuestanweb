@@ -191,16 +191,16 @@ body{
 
 .aside_widgets > ul > .aside_item_post > div > img{
 	width:100px;
-	height:60px;
+	height:70px;
 	object-fit: cover;
 }
 .aside_widgets > ul > .aside_item_post > div > h4{
-	height: 22px;
+	height: 20px;
 	overflow: hidden;
 	padding: 0 1px;
 }
 .aside_widgets > ul > .aside_item_post > div > p{
-	height: 40px;
+	height: 48px;
 	font-size: 10px;
 	padding: 0 3px;
 }

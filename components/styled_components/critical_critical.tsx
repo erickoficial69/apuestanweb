@@ -5,7 +5,7 @@ const CriticalStyles = ()=>{
                 `
                 :root{
                     --shadow-length: 36px ;
-                    --height-header:50px;
+                    --height-header:60px;
                     --radius:5px;
                     --index-header:3;
                     --padding-horizontal:0;
@@ -81,7 +81,7 @@ const CriticalStyles = ()=>{
                     justify-content: space-between;
                     background:rgba(0,0,0, .2);
                     border-radius:15px;
-                    padding: 5px;
+                    padding: 10px;
                 }
                 .toolbar .name_site{
                     display:none;
@@ -150,6 +150,8 @@ const CriticalStyles = ()=>{
                 aside{
                     display:grid;
                     grid-template-columns:1fr;
+                    align-content: flex-start;
+                    align-items: flex-start;
                   }
                 main section,.aside_widgets{
                     background:var(--bg-page);

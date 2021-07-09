@@ -40,15 +40,20 @@ const CatsMenu = ({page_info}:Params)=>{
               }
               .cats_items > li{
                 width:max-contant;
+                margin:10px;
               }
               .cats_items > li a{
                 padding:2px 5px;
-                margin:1px 5px;
               }
               .cats_items > li a:hover{
                 color:var(--secondary-color);
               }
-              
+              @media(min-width:1024px){
+                .cats_items > li{
+                  width:max-contant;
+                  margin:2px 10px;
+                }
+              }
             `
           }
         </style>
