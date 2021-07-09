@@ -74,7 +74,7 @@ export const get_posts_paths = async ()=>{
     
     const paths:any[] = []
     for(let post_type of wp_post_types){
-        const path = post_type.rest_base == 'pages' ?`${process.env.API}/wp/v2/${post_type.rest_base}`:`${process.env.API}/wp/v2/${post_type.rest_base}?per_page=100`
+        const path = post_type.rest_base == 'pages' ?`${process.env.API}/wp/v2/${post_type.rest_base}`:`${process.env.API}/wp/v2/${post_type.rest_base}`
         const req_ = await fetch(path)
         const res:any[] = await req_.json()
         if(res && res.length > 0){
