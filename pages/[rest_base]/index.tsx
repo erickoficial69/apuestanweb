@@ -45,7 +45,7 @@ const Blog = ({wpresp,page_info}:Props)=>{
       }
     )
     app_dispatch({type:'loader_app',payload:false}) 
-  },[])
+  },[asPath])
   return <>
       <Head>
         <title>Blog - Diaz web app</title>
