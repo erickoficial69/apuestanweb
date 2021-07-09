@@ -21,11 +21,10 @@ const IndexPage = () => {
     const {app,app_dispatch} = useContext(App_context)
 
     const starting = async()=>{
-      const resp = await get_all_posts({rest_base:process.env.APP_ENV !== 'production'?'pronostico':"events",page:1,per_page:6})
+      
       const resp_posts = await get_all_posts({rest_base:'posts',page:1,per_page:6})
 
       app_dispatch({type:'get_all_posts',payload:resp_posts})
-      setPronosticos(resp.data)
     }
 
     
