@@ -4,13 +4,23 @@ import Head from 'next/head'
 import { useContext, useState, useEffect } from 'react'
 import CatsMenu from '../../components/cats_menu'
 import Pagination from '../../components/pagination'
-import Tarjetita_post_1 from '../../components/post_cards/tarjetita_post_1'
-import Widget_posts from '../../components/widget_posts'
 import { App_context } from '../../context/wp_context/app_context'
 import { get_all_posts, get_post_type } from '../../controlers/app_controller'
 import { get_terms } from '../../controlers/taxonomies_controles'
 import { Post, StatePosts, WPResp } from '../../interfaces/app_interfaces'
 import { wp_post_types } from '../../wpconfig'
+import dynamic from 'next/dynamic'
+
+const Tarjetita_post_1 = dynamic(
+  () => import('../../components/post_cards/tarjetita_post_1'),
+  { loading: () => <p>Loading posts...</p> }
+)
+
+const Widget_posts = dynamic(
+  () => import('../../components/widget_posts'),
+  { loading: () => <p>Loading posts...</p> }
+)
+
 
 type Props={
   wpresp?:WPResp
