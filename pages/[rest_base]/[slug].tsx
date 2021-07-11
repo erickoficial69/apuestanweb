@@ -1,13 +1,12 @@
-import { GetStaticPaths, GetStaticPathsContext, GetStaticProps, GetStaticPropsContext } from 'next'
+import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { useRouter } from 'next/dist/client/router'
 import Head from 'next/head'
 import { useContext, useEffect } from 'react'
 import CatsMenu from '../../components/cats_menu'
 import { App_context } from '../../context/wp_context/app_context'
-import { get_post, get_posts_paths, get_post_type} from '../../controlers/app_controller'
+import { get_post, get_post_type} from '../../controlers/app_controller'
 import { get_terms } from '../../controlers/taxonomies_controles'
 import { Post } from '../../interfaces/app_interfaces'
-//const wpconfig = require('../../wpconfig.json')
 
 type Props={
   post?:Post
@@ -88,25 +87,16 @@ const The_Post = ({post,page_info}:Props)=>{
   </>
   
 }
-export const getStaticPaths:GetStaticPaths = async(_:GetStaticPathsContext)=>{
-  
-    const paths = await get_posts_paths()
-    
-    return {paths,fallback:true}
-}
-export const getStaticProps:GetStaticProps = async({params}:GetStaticPropsContext)=>{
+export const getServerSideProps:GetServerSideProps = async ({params}:GetServerSidePropsContext)=>{
+  const {rest_base,slug}:any = params
   try{
-      const {rest_base,slug}:any = params
-      if(slug !== '_' && rest_base !== '_' ){
-        let page_info = await get_post_type({slug:rest_base}) 
-        const post = await get_post({rest_base:page_info.rest_base,slug})
-        page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
-        
-        return {props:{post,page_info},revalidate:1}
-      }
-      return {props:{},revalidate:1}
+    let page_info = await get_post_type({slug:rest_base})
+    page_info = {...page_info,taxonomies:await get_terms(page_info.taxonomies)}
+    const post = await get_post({rest_base:page_info.rest_base,slug})
+    return {props:{page_info,post}}
   }catch(err){
-      return {props:{},revalidate:1}
+    console.error(err)
+    return {props:{}}
   }
 }
 

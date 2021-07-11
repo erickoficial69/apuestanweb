@@ -5,7 +5,7 @@ import { App_context } from '../context/wp_context/app_context'
 import Loader_app from './loader_app'
 import {Sports_bar} from './Sports_bar'
 
-const path_pronosticos = process.env.APP_ENV !== 'production'?'/pronostico':"/events"
+const path_pronosticos = process.env.APP_ENV !== 'production'?'/pronostico':"/pronostico"
 
 export const Header = () => {
     const {app,app_dispatch} = useContext(App_context)
